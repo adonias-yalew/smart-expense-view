@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppTransactionsRouteImport } from './routes/_app/transactions'
+import { Route as AppReportsRouteImport } from './routes/_app/reports'
 import { Route as AppCategoriesRouteImport } from './routes/_app/categories'
 import { Route as AppBudgetRouteImport } from './routes/_app/budget'
 
@@ -21,6 +22,11 @@ const AppRoute = AppRouteImport.update({
 const AppTransactionsRoute = AppTransactionsRouteImport.update({
   id: '/transactions',
   path: '/transactions',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppReportsRoute = AppReportsRouteImport.update({
+  id: '/reports',
+  path: '/reports',
   getParentRoute: () => AppRoute,
 } as any)
 const AppCategoriesRoute = AppCategoriesRouteImport.update({
@@ -38,12 +44,14 @@ export interface FileRoutesByFullPath {
   '/': typeof AppRouteWithChildren
   '/budget': typeof AppBudgetRoute
   '/categories': typeof AppCategoriesRoute
+  '/reports': typeof AppReportsRoute
   '/transactions': typeof AppTransactionsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AppRouteWithChildren
   '/budget': typeof AppBudgetRoute
   '/categories': typeof AppCategoriesRoute
+  '/reports': typeof AppReportsRoute
   '/transactions': typeof AppTransactionsRoute
 }
 export interface FileRoutesById {
@@ -51,18 +59,20 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/_app/budget': typeof AppBudgetRoute
   '/_app/categories': typeof AppCategoriesRoute
+  '/_app/reports': typeof AppReportsRoute
   '/_app/transactions': typeof AppTransactionsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/budget' | '/categories' | '/transactions'
+  fullPaths: '/' | '/budget' | '/categories' | '/reports' | '/transactions'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/budget' | '/categories' | '/transactions'
+  to: '/' | '/budget' | '/categories' | '/reports' | '/transactions'
   id:
     | '__root__'
     | '/_app'
     | '/_app/budget'
     | '/_app/categories'
+    | '/_app/reports'
     | '/_app/transactions'
   fileRoutesById: FileRoutesById
 }
@@ -86,6 +96,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppTransactionsRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/reports': {
+      id: '/_app/reports'
+      path: '/reports'
+      fullPath: '/reports'
+      preLoaderRoute: typeof AppReportsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/categories': {
       id: '/_app/categories'
       path: '/categories'
@@ -106,12 +123,14 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppBudgetRoute: typeof AppBudgetRoute
   AppCategoriesRoute: typeof AppCategoriesRoute
+  AppReportsRoute: typeof AppReportsRoute
   AppTransactionsRoute: typeof AppTransactionsRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppBudgetRoute: AppBudgetRoute,
   AppCategoriesRoute: AppCategoriesRoute,
+  AppReportsRoute: AppReportsRoute,
   AppTransactionsRoute: AppTransactionsRoute,
 }
 
