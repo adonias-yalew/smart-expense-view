@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, ArrowLeftRight, Tags, Wallet, Bell, Search } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Tags, Wallet, Bell, Search, Menu } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -76,7 +76,7 @@ export function AppLayout({ children, title }: { children: ReactNode; title: str
             onClick={() => setOpen((o) => !o)}
             aria-label="Toggle menu"
           >
-            <span className="i-block w-5 h-0.5 bg-foreground relative before:content-[''] before:absolute before:w-5 before:h-0.5 before:bg-foreground before:-top-1.5 after:content-[''] after:absolute after:w-5 after:h-0.5 after:bg-foreground after:top-1.5" />
+            <Menu className="h-5 w-5" />
           </Button>
           <h1 className="text-lg font-semibold tracking-tight hidden sm:block">{title}</h1>
           <div className="flex-1 max-w-md ml-auto relative hidden md:block">
