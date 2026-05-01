@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as AppTransactionsRouteImport } from './routes/_app/transactions'
 import { Route as AppCategoriesRouteImport } from './routes/_app/categories'
+import { Route as AppBudgetRouteImport } from './routes/_app/budget'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -27,29 +28,42 @@ const AppCategoriesRoute = AppCategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => AppRoute,
 } as any)
+const AppBudgetRoute = AppBudgetRouteImport.update({
+  id: '/budget',
+  path: '/budget',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppRouteWithChildren
+  '/budget': typeof AppBudgetRoute
   '/categories': typeof AppCategoriesRoute
   '/transactions': typeof AppTransactionsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AppRouteWithChildren
+  '/budget': typeof AppBudgetRoute
   '/categories': typeof AppCategoriesRoute
   '/transactions': typeof AppTransactionsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
+  '/_app/budget': typeof AppBudgetRoute
   '/_app/categories': typeof AppCategoriesRoute
   '/_app/transactions': typeof AppTransactionsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/categories' | '/transactions'
+  fullPaths: '/' | '/budget' | '/categories' | '/transactions'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/categories' | '/transactions'
-  id: '__root__' | '/_app' | '/_app/categories' | '/_app/transactions'
+  to: '/' | '/budget' | '/categories' | '/transactions'
+  id:
+    | '__root__'
+    | '/_app'
+    | '/_app/budget'
+    | '/_app/categories'
+    | '/_app/transactions'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -79,15 +93,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCategoriesRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/budget': {
+      id: '/_app/budget'
+      path: '/budget'
+      fullPath: '/budget'
+      preLoaderRoute: typeof AppBudgetRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppBudgetRoute: typeof AppBudgetRoute
   AppCategoriesRoute: typeof AppCategoriesRoute
   AppTransactionsRoute: typeof AppTransactionsRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppBudgetRoute: AppBudgetRoute,
   AppCategoriesRoute: AppCategoriesRoute,
   AppTransactionsRoute: AppTransactionsRoute,
 }
