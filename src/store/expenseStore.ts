@@ -23,11 +23,15 @@ export interface Category {
 interface ExpenseState {
   transactions: Transaction[];
   categories: Category[];
+  budgets: Record<string, number>; // categoryId -> monthly budget
+  monthlyBudget: number;
   addTransaction: (t: Omit<Transaction, "id">) => void;
   updateTransaction: (id: string, t: Omit<Transaction, "id">) => void;
   deleteTransaction: (id: string) => void;
   addCategory: (c: Omit<Category, "id">) => void;
   deleteCategory: (id: string) => void;
+  setBudget: (categoryId: string, amount: number) => void;
+  setMonthlyBudget: (amount: number) => void;
 }
 
 const uid = () => Math.random().toString(36).slice(2, 10);
@@ -37,6 +41,8 @@ export const useExpenseStore = create<ExpenseState>()(
     (set) => ({
       transactions: seedTransactions,
       categories: defaultCategories,
+      budgets: { food: 400, transport: 200, bills: 300, entertainment: 150, shopping: 250 },
+      monthlyBudget: 2000,
       addTransaction: (t) =>
         set((s) => ({ transactions: [{ ...t, id: uid() }, ...s.transactions] })),
       updateTransaction: (id, t) =>
@@ -49,6 +55,9 @@ export const useExpenseStore = create<ExpenseState>()(
         set((s) => ({ categories: [...s.categories, { ...c, id: uid() }] })),
       deleteCategory: (id) =>
         set((s) => ({ categories: s.categories.filter((c) => c.id !== id) })),
+      setBudget: (categoryId, amount) =>
+        set((s) => ({ budgets: { ...s.budgets, [categoryId]: amount } })),
+      setMonthlyBudget: (amount) => set({ monthlyBudget: amount }),
     }),
     { name: "expense-tracker-store" }
   )
