@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppTransactionsRouteImport } from './routes/_app/transactions'
 import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppReportsRouteImport } from './routes/_app/reports'
@@ -18,6 +19,11 @@ import { Route as AppBudgetRouteImport } from './routes/_app/budget'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppTransactionsRoute = AppTransactionsRouteImport.update({
@@ -47,7 +53,7 @@ const AppBudgetRoute = AppBudgetRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AppRouteWithChildren
+  '/': typeof IndexRoute
   '/budget': typeof AppBudgetRoute
   '/categories': typeof AppCategoriesRoute
   '/reports': typeof AppReportsRoute
@@ -55,7 +61,7 @@ export interface FileRoutesByFullPath {
   '/transactions': typeof AppTransactionsRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof AppRouteWithChildren
+  '/': typeof IndexRoute
   '/budget': typeof AppBudgetRoute
   '/categories': typeof AppCategoriesRoute
   '/reports': typeof AppReportsRoute
@@ -64,6 +70,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/_app/budget': typeof AppBudgetRoute
   '/_app/categories': typeof AppCategoriesRoute
@@ -90,6 +97,7 @@ export interface FileRouteTypes {
     | '/transactions'
   id:
     | '__root__'
+    | '/'
     | '/_app'
     | '/_app/budget'
     | '/_app/categories'
@@ -99,6 +107,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
 }
 
@@ -109,6 +118,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/transactions': {
@@ -168,8 +184,18 @@ const AppRouteChildren: AppRouteChildren = {
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}
