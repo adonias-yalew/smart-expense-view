@@ -1,24 +1,55 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, ArrowLeftRight, Tags, Wallet, Bell, Search, Menu } from "lucide-react";
+import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
+import {
+  LayoutDashboard,
+  ArrowLeftRight,
+  Tags,
+  Wallet,
+  Bell,
+  Search,
+  Menu,
+  Target,
+  BarChart3,
+  Settings,
+  LogOut,
+  User as UserIcon,
+} from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAuthStore, userInitials } from "@/store/authStore";
 
 const nav = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/transactions", label: "Transactions", icon: ArrowLeftRight },
   { to: "/categories", label: "Categories", icon: Tags },
+  { to: "/budget", label: "Budget", icon: Target },
+  { to: "/reports", label: "Reports", icon: BarChart3 },
+  { to: "/settings", label: "Settings", icon: Settings },
 ] as const;
 
-export function AppLayout({ children, title }: { children: ReactNode; title: string }) {
+export function AppLayout({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const { user, logout } = useAuthStore();
+
+  const handleLogout = () => {
+    logout();
+    navigate({ to: "/" });
+  };
 
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
+    <div className="min-h-screen bg-background flex w-full">
       <aside
         className={cn(
           "fixed lg:static inset-y-0 left-0 z-40 w-64 bg-sidebar border-r border-sidebar-border flex flex-col transition-transform",
@@ -34,7 +65,7 @@ export function AppLayout({ children, title }: { children: ReactNode; title: str
             <div className="text-[10px] text-muted-foreground uppercase tracking-widest">Expense tracker</div>
           </div>
         </div>
-        <nav className="flex-1 p-3 space-y-1">
+        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           {nav.map((item) => {
             const active = path === item.to;
             const Icon = item.icon;
@@ -66,9 +97,8 @@ export function AppLayout({ children, title }: { children: ReactNode; title: str
         <div className="fixed inset-0 bg-foreground/20 z-30 lg:hidden" onClick={() => setOpen(false)} />
       )}
 
-      {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-16 border-b border-border bg-card/80 backdrop-blur sticky top-0 z-20 flex items-center gap-4 px-4 lg:px-8">
+        <header className="h-16 border-b border-border bg-card/80 backdrop-blur sticky top-0 z-20 flex items-center gap-3 px-4 lg:px-8">
           <Button
             variant="ghost"
             size="icon"
@@ -78,19 +108,45 @@ export function AppLayout({ children, title }: { children: ReactNode; title: str
           >
             <Menu className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg font-semibold tracking-tight hidden sm:block">{title}</h1>
-          <div className="flex-1 max-w-md ml-auto relative hidden md:block">
+          <div className="flex-1 max-w-md relative hidden md:block">
             <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input placeholder="Search…" className="pl-9 bg-background" />
           </div>
-          <Button variant="ghost" size="icon" aria-label="Notifications">
-            <Bell className="h-5 w-5" />
-          </Button>
-          <Avatar className="h-9 w-9 ring-2 ring-primary/20">
-            <AvatarFallback className="bg-[image:var(--gradient-primary)] text-primary-foreground text-sm font-semibold">
-              AM
-            </AvatarFallback>
-          </Avatar>
+          <div className="ml-auto flex items-center gap-2">
+            <Button variant="ghost" size="icon" aria-label="Notifications" className="relative">
+              <Bell className="h-5 w-5" />
+              <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-destructive" />
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full hover:bg-muted transition-colors">
+                  <Avatar className="h-8 w-8 ring-2 ring-primary/20">
+                    <AvatarFallback className="bg-[image:var(--gradient-primary)] text-primary-foreground text-xs font-semibold">
+                      {user ? userInitials(user.name) : "?"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden sm:inline text-sm font-medium">{user?.name}</span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>
+                  <div className="font-medium">{user?.name}</div>
+                  <div className="text-xs text-muted-foreground font-normal">{user?.email}</div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate({ to: "/settings" })}>
+                  <UserIcon className="h-4 w-4 mr-2" /> Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate({ to: "/settings" })}>
+                  <Settings className="h-4 w-4 mr-2" /> Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+                  <LogOut className="h-4 w-4 mr-2" /> Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </header>
         <main className="flex-1 p-4 lg:p-8">{children}</main>
       </div>
